@@ -69,4 +69,3 @@ Ce jeu a été réalisé par ANTON NELCON Steve
 
 ⭐ N'oubliez pas de mettre une étoile si vous avez aimé ce projet !
 
-🐛 Vous avez trouvé un bug ? Ouvrez une [issue](https://github.com/votre-username/attrape-le-carre/issues)
