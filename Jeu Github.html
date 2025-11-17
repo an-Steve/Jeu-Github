@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini-jeu Amélioré</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      flex-direction: column;
+      padding: 20px;
+    }
+    
+    h1 {
+      color: white;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+      font-size: 2em;
+      text-align: center;
+    }
+    
+    #gameContainer {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+    }
+    
+    #game {
+      position: relative;
+      width: 500px;
+      height: 500px;
+      border: 3px solid #667eea;
+      background: linear-gradient(45deg, #f8f9fa 25%, transparent 25%, transparent 75%, #f8f9fa 75%, #f8f9fa),
+                  linear-gradient(45deg, #f8f9fa 25%, transparent 25%, transparent 75%, #f8f9fa 75%, #f8f9fa);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    
+    .target {
+      position: absolute;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s ease;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 28px;
+    }
+    
+    .target:hover {
+      transform: scale(1.1);
+    }
+    
+    .target:active {
+      transform: scale(0.95);
+    }
+    
+    .target.shrinking {
+      animation: shrink 0.3s ease-out;
+    }
+    
+    @keyframes shrink {
+      0% { transform: scale(1); }
+      50% { transform: scale(0.8); }
+      100% { transform: scale(1); }
+    }
+    
+    .particle {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #ffd93d;
+      border-radius: 50%;
+      pointer-events: none;
+      animation: particle 0.6s ease-out forwards;
+    }
+    
+    @keyframes particle {
+      0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
+    
+    #stats {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 20px;
+      gap: 20px;
+    }
+    
+    .stat {
+      text-align: center;
+      padding: 15px 25px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 10px;
+      flex: 1;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+    }
+    
+    #controls {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    
+    button {
+      padding: 12px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+    
+    button:active {
+      transform: translateY(0);
+    }
+    
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    #difficulty {
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 2px solid #667eea;
+      background: white;
+      cursor: pointer;
+    }
+    
+    .game-over {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 0.95);
+      padding: 40px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+      z-index: 100;
+    }
+    
+    .game-over h2 {
+      color: #667eea;
+      margin-bottom: 20px;
+      font-size: 2em;
+    }
+    
+    .game-over p {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+    @media (max-width: 600px) {
+      #game {
+        width: 90vw;
+        height: 90vw;
+        max-width: 400px;
+        max-height: 400px;
+      }
+      
+      h1 {
+        font-size: 1.5em;
+      }
+      
+      .target {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎮 Attrape le Carré Rouge !</h1>
+  <div id="gameContainer">
+    <div id="stats">
+      <div class="stat">
+        <div class="stat-label">SCORE</div>
+        <div class="stat-value" id="score">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">TEMPS</div>
+        <div class="stat-value" id="timer">30</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">MEILLEUR</div>
+        <div class="stat-value" id="best">0</div>
+      </div>
+    </div>
+    
+    <div id="game"></div>
+    
+    <div id="controls">
+      <select id="difficulty">
+        <option value="easy">Facile</option>
+        <option value="medium" selected>Normal</option>
+        <option value="hard">Difficile</option>
+        <option value="expert">Expert</option>
+      </select>
+      <button id="startBtn" onclick="startGame()">Commencer</button>
+      <button id="pauseBtn" onclick="togglePause()" disabled>Pause</button>
+    </div>
+  </div>
+
+  <script>
+    let score = 0;
+    let bestScore = parseInt(localStorage.getItem('bestScore')) || 0;
+    let gameInterval;
+    let timerInterval;
+    let timeLeft = 30;
+    let isPlaying = false;
+    let isPaused = false;
+    let targetSpeed = 1500;
+    let targetSize = 60;
+    
+    document.getElementById('best').textContent = bestScore;
+    
+    const difficulties = {
+      easy: { speed: 2000, time: 45, size: 70 },
+      medium: { speed: 1500, time: 30, size: 60 },
+      hard: { speed: 1000, time: 25, size: 50 },
+      expert: { speed: 700, time: 20, size: 40 }
+    };
+    
+    function createParticles(x, y) {
+      const game = document.getElementById('game');
+      for (let i = 0; i < 8; i++) {
+        const particle = document.createElement('div');
+        particle.classList.add('particle');
+        const angle = (Math.PI * 2 * i) / 8;
+        const distance = 50;
+        particle.style.left = x + 'px';
+        particle.style.top = y + 'px';
+        particle.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
+        particle.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
+        game.appendChild(particle);
+        setTimeout(() => particle.remove(), 600);
+      }
+    }
+    
+    function startGame() {
+      score = 0;
+      isPlaying = true;
+      isPaused = false;
+      
+      const difficulty = document.getElementById('difficulty').value;
+      const settings = difficulties[difficulty];
+      targetSpeed = settings.speed;
+      timeLeft = settings.time;
+      targetSize = settings.size;
+      
+      document.getElementById('score').textContent = score;
+      document.getElementById('timer').textContent = timeLeft;
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('pauseBtn').disabled = false;
+      document.getElementById('difficulty').disabled = true;
+      
+      const game = document.getElementById('game');
+      game.innerHTML = '';
+      
+      const target = document.createElement('div');
+      target.classList.add('target');
+      target.style.width = targetSize + 'px';
+      target.style.height = targetSize + 'px';
+      target.textContent = '🎯';
+      game.appendChild(target);
+      
+      function moveTarget() {
+        if (isPaused) return;
+        const x = Math.random() * (game.clientWidth - targetSize);
+        const y = Math.random() * (game.clientHeight - targetSize);
+        target.style.left = x + 'px';
+        target.style.top = y + 'px';
+      }
+      
+      target.addEventListener('click', (e) => {
+        if (!isPlaying || isPaused) return;
+        score++;
+        document.getElementById('score').textContent = score;
+        
+        const rect = target.getBoundingClientRect();
+        const gameRect = game.getBoundingClientRect();
+        createParticles(
+          rect.left - gameRect.left + targetSize / 2,
+          rect.top - gameRect.top + targetSize / 2
+        );
+        
+        target.classList.add('shrinking');
+        setTimeout(() => target.classList.remove('shrinking'), 300);
+        
+        moveTarget();
+      });
+      
+      moveTarget();
+      
+      clearInterval(gameInterval);
+      clearInterval(timerInterval);
+      
+      gameInterval = setInterval(moveTarget, targetSpeed);
+      
+      timerInterval = setInterval(() => {
+        if (isPaused) return;
+        timeLeft--;
+        document.getElementById('timer').textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+    }
+    
+    function togglePause() {
+      isPaused = !isPaused;
+      document.getElementById('pauseBtn').textContent = isPaused ? 'Reprendre' : 'Pause';
+    }
+    
+    function endGame() {
+      isPlaying = false;
+      clearInterval(gameInterval);
+      clearInterval(timerInterval);
+      
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('pauseBtn').disabled = true;
+      document.getElementById('difficulty').disabled = false;
+      
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('bestScore', bestScore);
+        document.getElementById('best').textContent = bestScore;
+      }
+      
+      const game = document.getElementById('game');
+      const gameOver = document.createElement('div');
+      gameOver.classList.add('game-over');
+      gameOver.innerHTML = `
+        <h2>🎉 Partie terminée !</h2>
+        <p>Score final : <strong>${score}</strong></p>
+        <p>Meilleur score : <strong>${bestScore}</strong></p>
+        ${score === bestScore && score > 0 ? '<p style="color: #ffd93d; font-weight: bold;">🏆 Nouveau record !</p>' : ''}
+      `;
+      game.appendChild(gameOver);
+      
+      setTimeout(() => {
+        gameOver.remove();
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
