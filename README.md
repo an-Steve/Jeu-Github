@@ -1,5 +1,8 @@
 # 🎮 Attrape le Carré Rouge
 
+<img width="604" height="841" alt="image" src="https://github.com/user-attachments/assets/f856accc-4d6c-4145-87d8-03b928f44c7e" />
+
+
 Un mini-jeu web addictif où vous devez cliquer sur une cible mobile avant la fin du temps imparti !
 Ce jeu a été réalisé par ANTON NELCON Steve
 
